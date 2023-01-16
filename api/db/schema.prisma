@@ -1,0 +1,65 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = "native"
+}
+
+// Define your own datamodels here and run `yarn redwood prisma migrate dev`
+// to create migrations for them and apply to your dev DB.
+
+enum Diet {
+  ANYTHING
+  PALEO
+  VEGETARIAN
+  VEGAN
+  KETOGENIC
+  MEDITERRANEAN
+}
+
+enum Allergen {
+  MILK
+  EGGS
+  FISH
+  CRUSTACEAN_SHELLFISH
+  TREE_NUTS
+  PEANUTS
+  WHEAT
+  SOYBEANS
+  SESAME
+}
+
+model User {
+  id             Int        @id @default(autoincrement())
+  externalId     String     @unique
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  preference     UserPreference?
+  recipes        Recipe[]
+}
+
+model UserPreference {
+  id             Int        @id @default(autoincrement())
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  diet           Diet       @default(ANYTHING)
+  allergens      Allergen[] @default([])
+  user           User       @relation(fields: [userId], references: [id])
+  userId         Int        @unique
+}
+
+model Recipe {
+  id             Int        @id @default(autoincrement())
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  title          String
+  description    String
+  ingredients    String[]
+  steps          String[]
+  note           String?
+  user           User       @relation(fields: [userId], references: [id])
+  userId         Int
+}
